@@ -326,31 +326,41 @@
             }
 
             // CRUD Create & Update
-            handleSaveUser(e) {
-                e.preventDefault();
+            function handleSaveUser(event) {
+                event.preventDefault();
+            
                 const id = document.getElementById('userId').value;
-                const username = document.getElementById('formUsername').value;
-                const email = document.getElementById('formEmail').value;
-                const role = document.getElementById('formRole').value;
-
+                const username = document.getElementById('userName').value;
+                const email = document.getElementById('userEmail').value;
+                const role = document.getElementById('userRole').value;
+            
+                let users = getUsersFromStorage();
+            
                 if (id) {
-                    // Update User
-                    const index = this.users.findIndex(u => u.id == id);
-                    if (index !== -1) {
-                        this.users[index] = UserFactory.createUser(Number(id), username, email, role);
-                    }
+                    // Update data
+                    users = users.map(u =>
+                        u.id == id
+                            ? { id: Number(id), username, email, role }
+                            : u
+                    );
                 } else {
-                    // Create User Baru
-                    const newId = Date.now();
-                    const newUser = UserFactory.createUser(newId, username, email, role);
-                    this.users.push(newUser);
+                    // Tambah data dengan ID berurutan
+                    const newId = users.length + 1;
+                    users.push({ id: newId, username, email, role });
                 }
-
-                this.saveToStorage();
-                this.resetForm();
-                this.renderTable();
+            
+                // Urutkan ID
+                users = users.map((u, index) => ({
+                    id: index + 1,
+                    username: u.username,
+                    email: u.email,
+                    role: u.role
+                }));
+            
+                saveUsersToStorage(users);
+                resetForm();
+                renderTable();
             }
-
             // CRUD Prepare Edit Form
             editUser(id) {
                 const user = this.users.find(u => u.id === id);
